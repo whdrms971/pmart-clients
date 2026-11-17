@@ -16,8 +16,11 @@ const seoulDate = (ms: number) => new Date(ms + KST).toISOString().slice(0, 10);
 /** 서울 날짜 YYYY-MM-DD 의 0시(UTC ms) */
 const seoulStart = (date: string) => Date.parse(`${date}T00:00:00+09:00`);
 
-/** validUntil(이 시각부터 무효) → 마지막 날(서울 날짜). 없으면 null(기한 없음) */
-export const lastDayOf = (validUntil: string | null | undefined): string | null => (validUntil ? seoulDate(Date.parse(validUntil) - DAY) : null);
+/**
+ * validUntil(이 시각부터 무효) → 마지막 날(서울 날짜) = 그 직전 순간의 날짜. 없으면 null(기한 없음).
+ * 자정에 끝나면 전날, 회수처럼 낮에 끝나면 그날(하루를 빼면 회수된 줄이 하루 일찍 끝난 것처럼 보인다 — 검토 지적 2026-11-17).
+ */
+export const lastDayOf = (validUntil: string | null | undefined): string | null => (validUntil ? seoulDate(Date.parse(validUntil) - 1) : null);
 
 /** 끝나지 않은 권한(유효하거나 시작 전) — 회수된 줄은 validUntil = 회수 시각이라 자연히 빠진다 */
 export const activeGrants = (grants: readonly EmployeeGrant[], now: number): EmployeeGrant[] =>

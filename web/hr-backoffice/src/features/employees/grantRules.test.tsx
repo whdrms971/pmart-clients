@@ -18,6 +18,7 @@ describe('규칙 계산', () => {
   it('마지막 날 = validUntil 전날(서울), 겹침은 같은 역할·센터·기간', () => {
     expect(lastDayOf('2027-03-01T00:00:00+09:00')).toBe('2027-02-28');
     expect(lastDayOf(null)).toBeNull();
+    expect(lastDayOf('2026-11-17T06:30:00Z')).toBe('2026-11-17'); // 회수(서울 15:30) — 그날까지 유효였다
     const g = { grantId: 'G1', approvalId: 'A', approverId: 'X', role: 'MFC_WORKER', centers: ['C1'], validFrom: '2026-09-01T00:00:00+09:00', validUntil: '2027-03-01T00:00:00+09:00', appliedAt: '2026-09-01T00:00:00Z' };
     const now = Date.parse('2026-11-17T00:00:00+09:00');
     expect(overlappingGrants([g], { role: 'MFC_WORKER', centers: ['C1'], validFrom: '', validTo: '' }, true, now)).toHaveLength(1);
