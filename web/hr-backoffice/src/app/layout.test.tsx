@@ -31,3 +31,22 @@ describe('메뉴 레이아웃', () => {
     expect(root.scrollTop).toBe(0);
   });
 });
+
+describe('메뉴 접기(2026-11-19)', () => {
+  it('접으면 64px 칸에 메뉴 다섯 개 아이콘, 아이콘으로 이동, 다시 펴기 — 고른 값은 기억', async () => {
+    renderAt('/employees');
+    const menu = await screen.findByTestId('side-menu');
+    expect(menu).toHaveAttribute('data-collapsed', 'false');
+    await userEvent.click(screen.getByRole('button', { name: '메뉴 접기' }));
+    expect(menu).toHaveAttribute('data-collapsed', 'true');
+    expect(menu.className).toContain('w-16');
+    expect(['home', 'employees', 'employees-new', 'departments', 'permissions'].map((id) => screen.getByTestId(`nav-rail-${id}`).getAttribute('title'))).toEqual(['첫 화면', '직원 목록', '직원 등록', '본사 부서', '권한 관리']);
+    expect(screen.getByTestId('nav-rail-employees')).toHaveAttribute('aria-current', 'page');
+    await userEvent.click(screen.getByTestId('nav-rail-permissions'));
+    expect(await screen.findByTestId('nav-rail-permissions')).toHaveAttribute('aria-current', 'page');
+    expect(window.localStorage.getItem('pmart.hr-backoffice.menu')).toBe('collapsed');
+    await userEvent.click(screen.getByRole('button', { name: '메뉴 펴기' }));
+    expect(menu).toHaveAttribute('data-collapsed', 'false');
+    expect(window.localStorage.getItem('pmart.hr-backoffice.menu')).toBe('open');
+  });
+});

@@ -48,6 +48,8 @@ export const messages = {
   nav: {
     group: '인사',
     home: '첫 화면',
+    collapse: '메뉴 접기',
+    expand: '메뉴 펴기',
     session: '내 세션',
     login: '로그인',
     employees: '직원 목록',
