@@ -151,6 +151,10 @@ main [data-state='loading']::after {
   main .overflow-x-auto:has(> table) {
     overflow: visible;
   }
+  /* 탭이 있는 목록 카드(overflow-hidden — 둥근 모서리 자르기)도 sticky 를 막는다 → clip(자르기는 그대로, 스크롤 상자는 안 만듦) */
+  main .overflow-hidden:has(table) {
+    overflow: clip;
+  }
   main table > thead th {
     position: sticky;
     top: 0;
