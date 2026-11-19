@@ -43,3 +43,17 @@ describe('상품 상세 사진', () => {
     expect(await screen.findByTestId('content-not-published')).toHaveTextContent('게시된 콘텐츠가 없어');
   });
 });
+
+describe('상품 상세 — 시스템 ID 대신(ADR-0070 덧붙임)', () => {
+  it('제목은 이름만, 카테고리는 경로, 승인은 "승인 보기" — ID 는 "시스템 번호" 접기 안에만', async () => {
+    renderAt('/products/P-00000001', as.md);
+    expect(await screen.findByRole('heading', { level: 1, name: '사과 1.5kg' })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByTestId('primary-category')).toHaveTextContent('과일·채소 > 과일 > 사과·배'));
+    expect(screen.getAllByTestId('exposed-category')[0]).toHaveTextContent('과일·채소 > 과일 > 사과·배');
+    expect(screen.getByTestId('product-approval')).toHaveTextContent('승인 보기');
+    const outside = document.querySelector('section')!.cloneNode(true) as HTMLElement;
+    outside.querySelector('[data-testid="system-numbers"]')?.remove();
+    expect(outside.textContent).not.toMatch(/P-00000001|p01-c01-l01|apv-seed-1/);
+    expect(screen.getByTestId('system-numbers')).toHaveTextContent('P-00000001');
+  });
+});

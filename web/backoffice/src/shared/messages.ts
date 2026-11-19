@@ -1918,6 +1918,10 @@ export const messages = {
     approvals: '승인 요청 현황',
     approvalNone: '이 배치의 승인 요청이 아직 없어요.',
     listTitle: '상품 조회',
+    /** 상품 상세 — 시스템 ID 대신(2026-11-19 ADR-0070 덧붙임) */
+    detailTitleNoId: '상품',
+    categoryGone: '트리에 없는 카테고리',
+    sys: { product: '상품', baseProduct: '기초상품', primaryCategory: '대표 카테고리', approval: '승인' },
     /** 상품 조회 목록(2026-11-19 쿠팡 윙 참고) */
     listView: {
       all: '전체',

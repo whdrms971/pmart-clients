@@ -1,6 +1,7 @@
 // 상품 상세·SKU·판매 상태 변경. 일시품절·판매 재개는 바로, 판매중지는 PRODUCT 승인 뒤 approvalId 와 함께(2026-10-30 결정).
 // 화면(2026-11-18 사용자 "밋밋하다 — Shopify 상품 상세처럼"): 머리(제목·판매 상태 배지·관리용 명칭) 아래 넓은 화면 두 칸 —
 // 왼쪽(2/3) SKU 표 카드·판매 상태 변경 카드, 오른쪽(1/3) 상품 요약 카드·작업 카드(콘텐츠 등록·정보 수정 시작). 동작은 그대로.
+import { SystemNumbers } from '../../shared/displayNumber';
 import { ContentGallery } from '../contents/ContentGallery';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
@@ -22,7 +23,7 @@ import { toUiState } from '@pmart/web-ui';
 import { useCommand } from '@pmart/web-ui';
 import { RequestApproval } from '../approvals/RequestApproval';
 import { DetailHeader, NextAction, StatusBadge } from '../../shared/admin';
-import { Card, EmptyState, JumpLink, tableClass, TitleWithId } from './parts';
+import { Card, EmptyState, JumpLink, tableClass } from './parts';
 import { SALE_TONE } from './ProductListPage';
 
 /** handoff 2026-10-30 §4.3 판매중지 변경 요청 본문 */
@@ -214,11 +215,15 @@ export function ProductDetailPage() {
 
   // 최근 본 항목(2026-11-18) — 서버 응답을 받은 뒤에만 남긴다
   useRecordRecent('product', productId, p0?.internalName ?? null);
+  // 카테고리 경로(상품 등록·조회와 같은 queryKey)
+  const tree = useQuery({ queryKey: ['product', 'category-tree'], queryFn: () => request('GET', api.product.GET('/categories/tree', {})) });
+  const catPath = (id: string) => (tree.data?.nodes ?? []).find((n) => n.categoryId === id)?.path ?? (tree.isError ? '?' : tree.isPending ? '…' : m.products.categoryGone);
   return (
     <section className="space-y-4">
       <DetailHeader
         back={{ to: '/products', label: m.products.listTitle }}
-        title={p0?.internalName ? <TitleWithId title={p0.internalName} id={m.products.detailTitle(productId)} /> : m.products.detailTitle(productId)}
+        // 제목은 관리용 명칭만 — 상품 ID 는 아래 "시스템 번호" 접기에(ADR-0070 덧붙임, 2026-11-19)
+        title={p0?.internalName ?? m.products.detailTitleNoId}
         badges={
           p0 ? (
             <>
@@ -239,6 +244,14 @@ export function ProductDetailPage() {
             </Link>
           </>
         }
+      />
+      <SystemNumbers
+        ids={[
+          { label: m.products.sys.product, id: productId },
+          { label: m.products.sys.baseProduct, id: p0?.baseProductId },
+          { label: m.products.sys.primaryCategory, id: p0?.primaryCategoryId },
+          { label: m.products.sys.approval, id: p0?.approvalId },
+        ]}
       />
       <QueryState state={toUiState(query)} onRetry={() => void query.refetch()}>
         {(p) => (
@@ -323,26 +336,27 @@ export function ProductDetailPage() {
                     {p.saleState ? m.products.saleStateName[p.saleState] : m.none}
                   </Fact>
                   <Fact label={m.products.version}>{p.version ?? m.none}</Fact>
-                  <Fact label={m.products.primaryCategoryId}>
-                    {p.primaryCategoryId ? <span className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">{p.primaryCategoryId}</span> : m.none}
+                  {/* 카테고리는 노드 ID 대신 경로(대분류 > 중분류 > 소분류, 2026-11-19) — 트리를 못 읽으면 "?" */}
+                  <Fact label={m.products.primaryCategory}>
+                    <span data-testid="primary-category">{p.primaryCategoryId ? catPath(p.primaryCategoryId) : m.none}</span>
                   </Fact>
-                  <Fact label={m.products.categoryIds}>
+                  <Fact label={m.products.categories}>
                     {(p.categoryIds ?? []).length === 0 ? (
                       m.none
                     ) : (
                       <span className="flex flex-wrap gap-1">
                         {(p.categoryIds ?? []).map((c) => (
-                          <span key={c} className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs font-normal">
-                            {c}
+                          <span key={c} className="rounded bg-base-200 px-1.5 py-0.5 text-xs font-normal" data-testid="exposed-category">
+                            {catPath(c)}
                           </span>
                         ))}
                       </span>
                     )}
                   </Fact>
-                  <Fact label={m.approvals.dossier}>
+                  <Fact label={m.products.sys.approval}>
                     {p.approvalId ? (
-                      <Link className="link link-primary font-mono text-xs" to={`/approvals/${encodeURIComponent(p.approvalId)}`}>
-                        {p.approvalId}
+                      <Link className="link link-primary text-sm" to={`/approvals/${encodeURIComponent(p.approvalId)}`} data-testid="product-approval">
+                        {m.products.openApproval} ›
                       </Link>
                     ) : (
                       m.none
