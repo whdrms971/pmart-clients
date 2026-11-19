@@ -222,8 +222,9 @@ function DraftNextAction({ draft: d }: { readonly draft: ProductDraft }) {
             {m.products.next.photo}
           </Link>
         )}
-        {d.resultSkus?.[0] && (
-          <Link className="btn btn-sm" to={`/prices?sku=${encodeURIComponent(d.resultSkus[0])}`} data-testid="applied-price">
+        {/* 승인 뒤 가격 — 가격 관리 화면이 아니라 그 상품의 가격 탭(2026-11-20) */}
+        {d.resultProductId && (
+          <Link className="btn btn-sm" to={`/products/${encodeURIComponent(d.resultProductId)}?tab=price`} data-testid="applied-price">
             {m.products.next.price}
           </Link>
         )}

@@ -35,3 +35,25 @@ describe('센터 취급(2026-11-20)', () => {
     expect(screen.queryByRole('link', { name: '센터 취급' })).not.toBeInTheDocument();
   });
 });
+
+describe('승인 뒤 "가격 정하기"(2026-11-20)', () => {
+  it('상품 등록이 승인·반영되면 가격은 가격 관리 화면이 아니라 그 상품의 가격 탭으로', async () => {
+    const { db } = await import('../../mocks/db');
+    db.productDrafts.set('pd-applied-t', {
+      draftId: 'pd-applied-t',
+      batchId: null,
+      sourceSystem: null,
+      sourceKey: null,
+      state: 'APPLIED',
+      input: { product: { internalName: '사과 1.5kg', primaryCategoryId: 'p01-c01-l01', categoryIds: ['p01-c01-l01'] }, skus: [] },
+      draftHash: 'h',
+      approvalId: 'apv-seed-1',
+      resultProductId: 'P-00000001',
+      resultSkus: ['E-00000001'],
+      version: 2,
+      updatedAt: '2026-11-20T00:00:00Z',
+    } as unknown as (typeof db.productDrafts extends Map<string, infer V> ? V : never));
+    renderAt('/products/drafts/pd-applied-t', as.md);
+    expect(await screen.findByTestId('applied-price')).toHaveAttribute('href', '/products/P-00000001?tab=price');
+  });
+});

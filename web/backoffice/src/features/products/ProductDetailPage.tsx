@@ -7,8 +7,8 @@ import { PriceChangeForm } from '../prices/PriceChangeForm';
 import { SystemNumbers } from '../../shared/displayNumber';
 import { ContentGallery, notPublished, useProductContent } from '../contents/ContentGallery';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState, type ReactNode } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
+import { useEffect, useState, type ReactNode } from 'react';
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router';
 
 import { commandParams } from '../../api/command';
 import { SALE_STATES, type ChangeRequestBody, type ProductDetail, type SaleState } from '../../api/models';
@@ -237,6 +237,12 @@ export function ProductDetailPage() {
       { replace: true },
     );
 
+  const hash = useLocation().hash;
+  useEffect(() => {
+    if (!p0 || !hash) return;
+    requestAnimationFrame(() => document.getElementById(hash.slice(1))?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }));
+  }, [p0, hash]);
+
   // 최근 본 항목(2026-11-18) — 서버 응답을 받은 뒤에만 남긴다
   useRecordRecent('product', productId, p0?.internalName ?? null);
   // 카테고리 경로(상품 등록·조회와 같은 queryKey)
@@ -288,9 +294,9 @@ export function ProductDetailPage() {
                 </Link>
               )}
               {noPriceSku && (
-                <Link className="btn btn-sm" to={`/prices?sku=${encodeURIComponent(noPriceSku)}`} data-testid="next-price">
+                <button type="button" className="btn btn-sm" onClick={() => setTab('price')} data-testid="next-price">
                   {m.products.next.price}
-                </Link>
+                </button>
               )}
             </NextAction>
           ) : null}
@@ -331,9 +337,9 @@ export function ProductDetailPage() {
                           {(p.skus ?? []).map((s) => (
                             <tr key={s.sku}>
                               <td>
-                                <Link className="font-mono font-medium text-primary hover:underline" to={`/prices?sku=${encodeURIComponent(s.sku)}`}>
+                                <button type="button" className="font-mono font-medium text-primary hover:underline" onClick={() => setTab('price')} data-testid="sku-to-price">
                                   {s.sku}
-                                </Link>
+                                </button>
                               </td>
                               <td>
                                 <p>{m.products.unitName[s.unitType]}</p>

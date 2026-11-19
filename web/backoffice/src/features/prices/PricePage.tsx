@@ -236,7 +236,7 @@ export function PricePage() {
         </PreviewDrawer>
       )}
       {bulk && bulk.length > 0 && (
-        <PreviewDrawer id={bulk.join(',')} ids={[bulk.join(',')]} onMove={() => undefined} onClose={() => setBulk(null)} title={m.prices.form.bulkTitle(bulk.length)}>
+        <PreviewDrawer id={bulk.join(',')} ids={[]} onMove={() => undefined} onClose={() => setBulk(null)} title={m.prices.form.bulkTitle(bulk.length)}>
           <PriceChangeForm key={bulk.join(',')} skus={bulk} />
         </PreviewDrawer>
       )}

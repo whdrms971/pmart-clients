@@ -50,7 +50,8 @@ describe('상품 조회', () => {
     await waitFor(() => expect(within(rowOf('사과 1.5kg')).getByTestId('product-price')).toHaveTextContent('4,500원'));
     const apple = rowOf('사과 1.5kg');
     expect(within(apple).getByTestId('product-edit')).toHaveAttribute('href', '/products/P-00000001');
-    expect(within(apple).getByRole('link', { name: '가격 관리에서 보기' })).toHaveAttribute('href', '/prices?sku=E-00000001');
+    expect(within(apple).getByRole('link', { name: '가격 바꾸기' })).toHaveAttribute('href', '/products/P-00000001?tab=price'); // 그 상품의 가격 탭(2026-11-20 — 가격 관리 화면으로 보내지 않음)
+    expect(within(apple).getByRole('link', { name: '판매 상태 바꾸기' })).toHaveAttribute('href', '/products/P-00000001#sale-state-change');
     expect(within(apple).getByRole('link', { name: '콘텐츠·이미지 등록' })).toHaveAttribute('href', '/products/P-00000001?tab=content'); // 상품 상세의 고객 화면 탭(2026-11-19 상품 묶음 합치기)
   });
 });

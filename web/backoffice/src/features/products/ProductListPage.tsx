@@ -398,7 +398,7 @@ export function ProductListPage() {
                               )}
                             </td>
                             <td className="text-right" onClick={(e) => e.stopPropagation()}>
-                              {p.productId && <RowActions productId={p.productId} firstSku={pr?.skus[0]} />}
+                              {p.productId && <RowActions productId={p.productId} />}
                             </td>
                           </tr>
                         );
@@ -448,7 +448,7 @@ function Thumb({ card, name }: { readonly card: { readonly mainImage?: { readonl
 }
 
 /** 줄 행동(쿠팡 윙 "상품수정 ⋮") — 상품 수정은 상세로, ⋮ 는 가격·콘텐츠로 바로 */
-function RowActions({ productId, firstSku }: { readonly productId: string; readonly firstSku: string | undefined }) {
+function RowActions({ productId }: { readonly productId: string }) {
   const detail = `/products/${encodeURIComponent(productId)}`;
   return (
     <div className="join">
@@ -461,13 +461,14 @@ function RowActions({ productId, firstSku }: { readonly productId: string; reado
         </button>
         <ul tabIndex={0} className="menu dropdown-content z-30 mt-1 w-48 rounded-box border border-base-300 bg-base-100 p-1 text-sm shadow-lg">
           <li>
-            <Link to={firstSku ? `/prices?sku=${encodeURIComponent(firstSku)}` : '/prices'}>{l.menu.price}</Link>
+            {/* 가격 — 그 상품의 가격 탭에서 바로 바꾼다(2026-11-20, 가격 관리 화면으로 보내지 않음) */}
+            <Link to={`${detail}?tab=price`}>{l.menu.price}</Link>
           </li>
           <li>
             <Link to={`${detail}?tab=content`}>{l.menu.content}</Link>
           </li>
           <li>
-            <Link to={detail}>{l.menu.saleState}</Link>
+            <Link to={`${detail}#sale-state-change`}>{l.menu.saleState}</Link>
           </li>
         </ul>
       </div>

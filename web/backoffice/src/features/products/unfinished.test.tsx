@@ -32,7 +32,16 @@ describe('상품 상세 — 다음 할 일', () => {
   it('미게시·가격 미설정 상품은 맨 위에 "사진·설명 등록"·"가격 정하기"', async () => {
     renderAt('/products/P-00000002', as.md);
     expect(await screen.findByTestId('next-photo')).toHaveAttribute('href', '/contents/drafts/new?productId=P-00000002');
-    expect(await screen.findByTestId('next-price')).toHaveAttribute('href', expect.stringMatching(/^\/prices\?sku=/));
+    // 가격 정하기 — 이 화면의 가격 탭으로(2026-11-20 — 가격 관리 화면으로 보내지 않음)
+    await userEvent.click(await screen.findByTestId('next-price'));
+    expect(await screen.findByTestId('price-form')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /소고기 미역국/ })).toBeInTheDocument();
+  });
+
+  it('SKU 표의 SKU 번호를 누르면 이 화면의 가격 탭', async () => {
+    renderAt('/products/P-00000001', as.md);
+    await userEvent.click(await screen.findByTestId('sku-to-price'));
+    expect(await screen.findByTestId('price-form')).toBeInTheDocument();
   });
 
   it('다 된 상품(게시·가격 있음)에는 없다', async () => {
