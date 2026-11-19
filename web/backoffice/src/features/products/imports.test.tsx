@@ -14,11 +14,11 @@ const zip = () => new File(['PK'], 'seed-v1.zip', { type: 'application/zip' });
 // 가격 목은 Node 시험 환경에서 업로드 본문(formData)을 읽다가 끊긴다(브라우저 목 모드에서는 정상 — 2026-11-19 화면 확인).
 // 이 화면 시험은 가격 응답을 계약 모양(PriceImportBatch)으로 정해 둔다 — 새 상품 1줄은 SKU_NOT_FOUND.
 const priceLine = (seedProductId: string, status: 'READY' | 'SKU_NOT_FOUND') => ({ seedProductId, status, edited: false, excluded: false, sku: status === 'READY' ? 'E-00000001' : null, basePrice: 4500 });
+const priceBatch = { batchId: 'PB-T1', format: 'SEED_V1', state: 'DRAFT', version: 0, lineCount: 2, submittableCount: 1, lines: [priceLine('seed-1', 'READY'), priceLine('seed-2', 'SKU_NOT_FOUND')] };
 const usePriceBatch = () =>
   server.use(
-    http.post(`${API_BASE}/price-import-batches`, () =>
-      HttpResponse.json({ batchId: 'PB-T1', format: 'SEED_V1', state: 'DRAFT', version: 0, lineCount: 2, submittableCount: 1, lines: [priceLine('seed-1', 'READY'), priceLine('seed-2', 'SKU_NOT_FOUND')] }, { status: 201 }),
-    ),
+    http.post(`${API_BASE}/price-import-batches`, () => HttpResponse.json(priceBatch, { status: 201 })),
+    http.get(`${API_BASE}/price-import-batches/PB-T1`, () => HttpResponse.json(priceBatch)),
   );
 
 describe('일괄 등록 — 파일 한 번 올리기', () => {
@@ -30,7 +30,11 @@ describe('일괄 등록 — 파일 한 번 올리기', () => {
     await user.click(screen.getByRole('button', { name: '업로드·검증' }));
     for (const p of ['product', 'content', 'price']) expect(await screen.findByTestId(`imports-open-${p}`)).toBeInTheDocument();
     expect(screen.getByTestId('imports-open-content').getAttribute('href')).toMatch(/^\/contents\/import\//);
-    expect(screen.getByTestId('imports-price-nosku')).toHaveTextContent('상품 승인 뒤');
+    // 진행 현황 — 서버 상태 그대로와 다음 할 일. 가격의 SKU 없음은 "상품 승인 뒤 다시 대조"
+    expect(screen.getByTestId('imports-next-price')).toHaveTextContent('상품 승인 뒤');
+    expect(screen.getByTestId('imports-state-product')).toHaveTextContent('제출 전');
+    expect(screen.getByTestId('imports-next-content')).toHaveTextContent('상품 승인 뒤에 제출');
+    // 서버 상태 카드는 주소의 배치 번호로만 그려진다 — 위 "제출 전"이 보이면 번호가 주소에 남은 것
     // 서비스마다 다른 멱등키
     const keys = ['/product-import-batches', '/content-import-batches', '/price-import-batches'].map((p) => view.mutations(p)[0]?.headers.get('Idempotency-Key'));
     expect(keys.every(Boolean)).toBe(true);
@@ -64,6 +68,27 @@ describe('일괄 등록 — 파일 한 번 올리기', () => {
     expect(await screen.findByTestId('imports-retry-content')).toBeInTheDocument();
     expect(await screen.findByTestId('imports-open-product')).toBeInTheDocument();
     expect(screen.getByTestId('imports-open-price')).toBeInTheDocument();
+  });
+});
+
+describe('일괄 등록 — 진행 현황', () => {
+  it('주소의 배치 번호로 다시 열면 카드가 남고, 상품이 반영됐으면 가격은 "다시 대조하러 가기"', async () => {
+    usePriceBatch();
+    server.use(
+      http.get(`${API_BASE}/product-import-batches/PIB-T1`, () => HttpResponse.json({ batchId: 'PIB-T1', format: 'SEED_V1', state: 'APPLIED', productCount: 2, validCount: 2, invalidCount: 0, drafts: [] })),
+    );
+    renderAt('/imports?product=PIB-T1&price=PB-T1', as.md);
+    expect(await screen.findByTestId('imports-state-product')).toHaveTextContent('반영됨');
+    const go = await screen.findByTestId('imports-open-price');
+    await waitFor(() => expect(go).toHaveTextContent('다시 대조하러 가기'));
+    expect(go).toHaveAttribute('href', '/prices/import/PB-T1');
+    expect(screen.getByTestId('imports-next-price')).toHaveTextContent('다시 대조');
+  });
+
+  it('배치 상태를 못 읽으면 "읽지 못했어요"와 다시 읽기 — 실패로 바꾸지 않는다', async () => {
+    server.use(http.get(`${API_BASE}/product-import-batches/PIB-X`, () => HttpResponse.json({ code: 'UNAVAILABLE' }, { status: 503 })));
+    renderAt('/imports?product=PIB-X', as.md);
+    expect(await screen.findByTestId('imports-failed-product')).toHaveTextContent('읽지 못했어요');
   });
 });
 
