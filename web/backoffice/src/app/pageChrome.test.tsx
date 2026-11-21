@@ -10,15 +10,15 @@ import { messages as m } from '../shared/messages';
 afterEach(() => vi.restoreAllMocks());
 
 describe('브라우저 탭 제목', () => {
-  it('지금 화면 이름 · PMart 백오피스 — 접수 건을 못 맡는 상담원은 숫자 없이', async () => {
+  it('지금 화면 이름 | 통합백오피스 — 접수 건을 못 맡는 상담원은 숫자 없이', async () => {
     renderAt('/orders', as.cs);
-    await waitFor(() => expect(document.title).toBe(`${m.nav.orders} · PMart 백오피스`));
+    await waitFor(() => expect(document.title).toBe(`${m.nav.orders} | 통합백오피스`));
   });
 
   it('기한 넘긴 접수 건이 있으면 앞에 (수) — 서버가 센 수', async () => {
     server.use(http.get('*/api/v1/views/case-inbox', ({ request }) => (new URL(request.url).searchParams.get('overdue') === 'true' ? HttpResponse.json({ items: [{ caseId: 'C1' }, { caseId: 'C2' }], page: { nextCursor: null } }) : undefined)));
     renderAt('/approvals', as.admin);
-    await waitFor(() => expect(document.title).toMatch(new RegExp(`^\\(\\d+\\+?\\) ${m.nav.approvals} · PMart 백오피스$`)));
+    await waitFor(() => expect(document.title).toMatch(new RegExp(`^\\(\\d+\\+?\\) ${m.nav.approvals} \\| 통합백오피스$`)));
   });
 });
 

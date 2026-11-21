@@ -98,7 +98,7 @@ describe('최근 봄·목록 순서대로 넘기기·미리보기', () => {
 describe('화면 틀', () => {
   it('탭 제목에 화면 이름, 인터넷이 끊기면 띠', async () => {
     renderAt('/c/MFC-BSN-01/tasks');
-    await waitFor(() => expect(document.title).toMatch(/작업 현황 · PMart MFC$/));
+    await waitFor(() => expect(document.title).toMatch(/^(\(\d+\+?\) )?작업 현황 \| MFC백오피스$/));
     const online = Object.getOwnPropertyDescriptor(Navigator.prototype, 'onLine');
     Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => false });
     act(() => {

@@ -10,18 +10,20 @@ import { messages } from '../shared/messages';
 
 const m = messages.chrome;
 const BACK_MS = 4_000;
+/** 탭 제목의 앱 이름 — "화면 | MFC백오피스"(2026-11-21 사용자, 네 백오피스 같은 꼴) */
+const TAB_APP = 'MFC백오피스';
 
-/** 탭 제목 — "(3) 작업 현황 · PMart MFC 백오피스". 숫자는 서버 값으로 판정한 약속 초과, 못 읽으면 숫자 없이 */
+/** 탭 제목 — "(3) 작업 현황 | MFC백오피스". 숫자는 서버 값으로 판정한 약속 초과, 못 읽으면 숫자 없이 */
 export function useDocumentTitle(screen: string | null, mfcId: string | null) {
   const urgent = useOverdueCount(mfcId);
   const count = urgent && urgent.n > 0 ? `(${urgent.more ? `${urgent.n}+` : urgent.n}) ` : '';
-  const title = `${count}${screen ? `${screen} · ` : ''}${messages.appTitle}`;
+  const title = `${count}${screen ? `${screen} | ` : ''}${TAB_APP}`;
   useEffect(() => {
     document.title = title;
   }, [title]);
   useEffect(
     () => () => {
-      document.title = messages.appTitle;
+      document.title = TAB_APP;
     },
     [],
   );

@@ -80,7 +80,7 @@ describe('화면 틀', () => {
 
   it('브라우저 탭 제목: 화면 이름 + 아직 받지 않은 도움요청 수', async () => {
     renderAt('/deliveries', as.riderOps);
-    await waitFor(() => expect(document.title).toMatch(/^\(\d+\) 배송 찾기 · PMart 라이더 백오피스$/));
+    await waitFor(() => expect(document.title).toMatch(/^\(\d+\) 배송 찾기 \| 라이더백오피스$/));
   });
 
   it('인터넷이 끊기면 띠로 알리고, 다시 이어지면 잠깐 알린다', async () => {

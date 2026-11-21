@@ -1,5 +1,5 @@
 // 사본: web/backoffice/src/app/PageChrome.tsx (main 3222d26)·ThemeToggle.tsx (main a7cbe71)·ShortcutHelp.tsx 의 '/' 키 (main 3222d26) — 이 앱에서 따로 고친다(앱 조회를 아는 부품, 지침 §5).
-// 1) 브라우저 탭 제목: "(급한 일 수) 화면 이름 · PMart 라이더 백오피스". 급한 일 = 아직 아무도 받지 않은 배송 도움요청(state OPEN) —
+// 1) 브라우저 탭 제목: "(급한 일 수) 화면 이름 | 라이더백오피스". 급한 일 = 아직 아무도 받지 않은 배송 도움요청(state OPEN) —
 //    서버 목록 한 쪽(50건)으로 센다. 다음 쪽이 있으면 "50+". 못 읽으면 숫자 없이(0 으로 보이지 않게).
 // 2) 인터넷 끊김 띠: 끊긴 동안 화면 숫자가 최신이 아님을 알린다. 다시 이어지면 4초 동안 알리고 화면은 저절로 다시 읽는다.
 // 3) '/' 키: 입력 칸 밖에서 누르면 이 화면 검색 조건(SearchPanel)의 첫 칸으로.
@@ -15,6 +15,8 @@ import { useApi } from './ApiContext';
 const m = ui.chrome;
 const BACK_MS = 4_000;
 const URGENT_PAGE = 50;
+/** 탭 제목의 앱 이름 — "화면 | 라이더백오피스"(2026-11-21 사용자, 네 백오피스 같은 꼴) */
+const TAB_APP = '라이더백오피스';
 
 /** 아직 받지 않은 배송 도움요청 수(서버 목록 한 쪽 기준) — 못 읽거나 읽는 중이면 null */
 function useUrgentTotal(enabled: boolean): { readonly n: number; readonly more: boolean } | null {
@@ -32,13 +34,13 @@ function useUrgentTotal(enabled: boolean): { readonly n: number; readonly more: 
 export function useDocumentTitle(screen: string | null, signedIn: boolean) {
   const urgent = useUrgentTotal(signedIn);
   const count = urgent && urgent.n > 0 ? `(${urgent.more ? `${urgent.n}+` : urgent.n}) ` : '';
-  const title = `${count}${screen ? `${screen} · ` : ''}${ui.appName}`;
+  const title = `${count}${screen ? `${screen} | ` : ''}${TAB_APP}`;
   useEffect(() => {
     document.title = title;
   }, [title]);
   useEffect(
     () => () => {
-      document.title = ui.appName;
+      document.title = TAB_APP;
     },
     [],
   );

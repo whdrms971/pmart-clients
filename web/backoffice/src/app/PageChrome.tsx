@@ -7,15 +7,15 @@ import { messages } from '../shared/messages';
 import { useUrgentTotal } from './MenuAlerts';
 
 const m = messages.chrome;
-const BASE = 'PMart 백오피스';
+const BASE = '통합백오피스'; // 탭 제목 "화면 | 통합백오피스"(2026-11-21 사용자)
 const BACK_MS = 4_000;
 
-/** 탭 제목 — "(3) 접수 건 · PMart 백오피스". 숫자는 서버가 센 기한 넘김(50 넘으면 50+), 못 읽으면 숫자 없이 */
+/** 탭 제목 — "(3) 접수 건 | 통합백오피스". 숫자는 서버가 센 기한 넘김(50 넘으면 50+), 못 읽으면 숫자 없이 */
 export function useDocumentTitle(screen: string | null) {
   const urgent = useUrgentTotal();
   useEffect(() => {
     const count = urgent && urgent.n > 0 ? `(${urgent.more ? `${urgent.n}+` : urgent.n}) ` : '';
-    document.title = `${count}${screen ? `${screen} · ` : ''}${BASE}`;
+    document.title = `${count}${screen ? `${screen} | ` : ''}${BASE}`;
   }, [screen, urgent]);
   useEffect(
     () => () => {

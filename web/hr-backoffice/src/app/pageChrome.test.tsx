@@ -8,9 +8,9 @@ import { renderAt } from '../test/render';
 afterEach(() => vi.restoreAllMocks());
 
 describe('인사팀 화면 틀', () => {
-  it('탭 제목 = (발급 실패 수) 화면 이름 · PMart 인사팀 백오피스', async () => {
+  it('탭 제목 = (발급 실패 수) 화면 이름 | 인사백오피스', async () => {
     renderAt('/employees');
-    await waitFor(() => expect(document.title.replace(/^\(\d+\+?\) /, '')).toBe(`${m.nav.employees} · PMart 인사팀 백오피스`));
+    await waitFor(() => expect(document.title.replace(/^\(\d+\+?\) /, '')).toBe(`${m.nav.employees} | 인사백오피스`));
   });
 
   it('인터넷이 끊기면 띠, 이어지면 "다시 연결됐어요"', async () => {

@@ -11,10 +11,10 @@ import { useApi } from './ApiContext';
 import { useSession } from './SessionContext';
 
 const m = messages.chrome;
-const BASE = 'PMart 인사팀 백오피스';
+const BASE = '인사백오피스'; // 탭 제목 "화면 | 인사백오피스"(2026-11-21 사용자)
 const BACK_MS = 4_000;
 
-/** 탭 제목 — "(2) 직원 목록 · PMart 인사팀 백오피스". 숫자는 계정 발급 실패(서버 counts), 못 읽으면 숫자 없이 */
+/** 탭 제목 — "(2) 직원 목록 | 인사백오피스". 숫자는 계정 발급 실패(서버 counts), 못 읽으면 숫자 없이 */
 export function useDocumentTitle(screen: string | null) {
   const api = useApi();
   const { session } = useSession();
@@ -28,7 +28,7 @@ export function useDocumentTitle(screen: string | null) {
   // 서버가 다 세지 못했으면(complete=false) 수 뒤에 + (첫 화면 숫자 띠와 같게)
   const count = failed && failed.value > 0 ? `(${failed.value}${failed.complete ? '' : '+'}) ` : '';
   useEffect(() => {
-    document.title = `${count}${screen ? `${screen} · ` : ''}${BASE}`;
+    document.title = `${count}${screen ? `${screen} | ` : ''}${BASE}`;
   }, [screen, count]);
   useEffect(
     () => () => {
