@@ -2902,8 +2902,8 @@ export const messages = {
     // 2026-11-20 AWS 위젯 메뉴
     layout: { menu: '위젯 메뉴', hide: '이 위젯 숨기기', reset: '기본 배치로', hiddenCount: (n: number) => `숨긴 위젯 ${n}개` },
     /** 탭(2026-11-18 — 첫 화면은 지금 할 일, 통계는 따로) */
-    tabs: { label: '대시보드 보기', overview: '한눈에', ops: '운영', sales: '매출·통계', board: '보드' },
-    // 보드 탭(2026-11-20) — 칸 이름은 "내 할 일" 과 같은 서버 조회
+    tabs: { label: '대시보드 보기', overview: '한눈에', ops: '운영', sales: '매출·통계' },
+    // 보드(2026-11-20, 2026-11-21 부터 한눈에 아래) — 칸 이름은 "내 할 일" 과 같은 서버 조회
     board: { label: '내 일 보드', overdue: '기한 넘김', unassigned: '아무도 안 맡음', mine: '내가 맡음', inquiries: '답변 대기 문의', approvals: '내가 심사할 승인' },
     title: '대시보드',
     hello: (hour: number) => (hour < 12 ? '좋은 아침이에요' : hour < 18 ? '오늘도 수고 많아요' : '오늘 하루 고생 많았어요'),

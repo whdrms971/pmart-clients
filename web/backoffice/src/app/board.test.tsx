@@ -8,11 +8,16 @@ import { API_BASE } from '../api/client';
 import { server } from '../test/server';
 import { as, renderAt } from '../test/render';
 
-describe('대시보드 보드 탭', () => {
+describe('대시보드 보드(한눈에 아래, 2026-11-21 보드 탭 없앰)', () => {
+  it('보드 탭은 없고, 한눈에 숫자 칸 아래에 보드가 바로 보인다 — 옛 ?tab=board 주소도 한눈에', async () => {
+    renderAt('/?tab=board', as.admin);
+    const panel = await screen.findByRole('tabpanel', { name: '한눈에' });
+    expect(screen.queryByRole('tab', { name: '보드' })).not.toBeInTheDocument();
+    expect(within(panel).getByTestId('dash-board')).toBeInTheDocument();
+  });
+
   it('관리자: 기한 넘김·아무도 안 맡음·내가 맡음·답변 대기 문의·내가 심사할 승인 칸, 카드를 누르면 상세', async () => {
-    const user = userEvent.setup();
     const view = renderAt('/', as.admin);
-    await user.click(await screen.findByRole('tab', { name: '보드' }));
     const board = await screen.findByTestId('dash-board');
     for (const id of ['overdue', 'unassigned', 'mine', 'inquiries', 'approvals']) expect(within(board).getByTestId(`board-col-${id}`)).toBeInTheDocument();
     // 서버 조회 조건 — 메뉴 알림과 같은 조건
@@ -32,7 +37,7 @@ describe('대시보드 보드 탭', () => {
   it('한 칸을 못 읽으면 그 칸만 "?"와 다시 — 0 이나 빈 칸으로 보이지 않는다', async () => {
     server.use(http.get(`${API_BASE}/approvals`, () => HttpResponse.json({ type: 'about:blank', title: 'x', status: 503 }, { status: 503, headers: { 'content-type': 'application/problem+json' } })));
     const user = userEvent.setup();
-    renderAt('/?tab=board', as.admin);
+    renderAt('/', as.admin);
     const col = await screen.findByTestId('board-col-approvals');
     await waitFor(() => expect(within(col).getByTestId('board-count-approvals')).toHaveTextContent('?'));
     expect(within(col).getByRole('alert')).toHaveTextContent('못 읽었어요');
